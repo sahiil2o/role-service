@@ -37,8 +37,32 @@ public class RoleServiceImpl implements RoleService{
     @Override
     public RoleResponse getRoleById(Long id){
         Role role = roleRepository.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundException("Role Not found"));
+                .orElseThrow(()-> new ResourceNotFoundException("Role Not found" + id));
         return mapToDTO(role);
+    }
+
+    @Override
+    public RoleResponse getRoleByName(String name){
+        Role role = roleRepository.findByName(name)
+                .orElseThrow(()-> new ResourceNotFoundException("Role Not found: " + name));
+        return mapToDTO(role);
+    }
+
+    @Override
+    public RoleResponse updateRole(Long id,RoleRequest request){
+        Role role = roleRepository.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundException("Role Not found" + id));
+        role.setName(request.getName());
+        role.setDescription(request.getDescription());
+        Role updated = roleRepository.save(role);
+        return mapToDTO(updated);
+    }
+
+    @Override
+    public void deleteRoleById(Long id){
+        Role role = roleRepository.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundException("Role Not found" + id));
+        roleRepository.delete(role);
     }
 
     private RoleResponse mapToDTO(Role role){
