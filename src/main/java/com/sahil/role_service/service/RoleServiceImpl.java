@@ -2,12 +2,13 @@ package com.sahil.role_service.service;
 
 import com.sahil.role_service.dto.RoleRequest;
 import com.sahil.role_service.dto.RoleResponse;
+import com.sahil.role_service.exception.DuplicateRoleNameException;
 import com.sahil.role_service.exception.ResourceNotFoundException;
 import com.sahil.role_service.model.Role;
 import com.sahil.role_service.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,7 +19,11 @@ public class RoleServiceImpl implements RoleService{
     private final RoleRepository roleRepository;
 
     @Override
+    @Transactional
     public RoleResponse createRole(RoleRequest request){
+        if(roleRepository.existsByName(request.getName())){
+            throw new DuplicateRoleNameException("Role already exists: "+request.getName());
+        }
         Role role = new Role();
         role.setName(request.getName());
         role.setDescription(request.getDescription());
@@ -28,6 +33,7 @@ public class RoleServiceImpl implements RoleService{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<RoleResponse> getAllRoles(){
         return roleRepository.findAll()
                 .stream()
@@ -35,13 +41,15 @@ public class RoleServiceImpl implements RoleService{
                 .toList();
     }
     @Override
+    @Transactional(readOnly = true)
     public RoleResponse getRoleById(Long id){
         Role role = roleRepository.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundException("Role Not found" + id));
+                .orElseThrow(()-> new ResourceNotFoundException("Role Not found: " + id));
         return mapToDTO(role);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public RoleResponse getRoleByName(String name){
         Role role = roleRepository.findByName(name)
                 .orElseThrow(()-> new ResourceNotFoundException("Role Not found: " + name));
@@ -49,9 +57,15 @@ public class RoleServiceImpl implements RoleService{
     }
 
     @Override
+    @Transactional
     public RoleResponse updateRole(Long id,RoleRequest request){
+
         Role role = roleRepository.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundException("Role Not found" + id));
+                .orElseThrow(()-> new ResourceNotFoundException("Role Not found: " + id));
+        if(!role.getName().equals(request.getName())
+                && roleRepository.existsByName(request.getName())){
+            throw new DuplicateRoleNameException("Role already exists: "+request.getName());
+        }
         role.setName(request.getName());
         role.setDescription(request.getDescription());
         Role updated = roleRepository.save(role);
@@ -59,9 +73,10 @@ public class RoleServiceImpl implements RoleService{
     }
 
     @Override
+    @Transactional
     public void deleteRoleById(Long id){
         Role role = roleRepository.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundException("Role Not found" + id));
+                .orElseThrow(()-> new ResourceNotFoundException("Role Not found: " + id));
         roleRepository.delete(role);
     }
 

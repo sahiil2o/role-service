@@ -2,7 +2,6 @@ package com.sahil.role_service.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.hibernate.boot.registry.selector.StrategyRegistration;
 
 @Data
 @Entity
