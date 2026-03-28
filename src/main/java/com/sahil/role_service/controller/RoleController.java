@@ -7,6 +7,7 @@ import com.sahil.role_service.service.RoleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,12 +17,12 @@ import java.util.List;
 @RequestMapping("/api/roles")
 @RequiredArgsConstructor
 public class RoleController {
-    @Autowired
+
     private final RoleService roleService;
 
     @PostMapping
     public ResponseEntity<RoleResponse> createRole(@Valid @RequestBody RoleRequest request){
-        return ResponseEntity.ok().body(roleService.createRole(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(roleService.createRole(request));
     }
 
     @GetMapping

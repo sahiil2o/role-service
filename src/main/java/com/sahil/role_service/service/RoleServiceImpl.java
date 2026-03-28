@@ -14,8 +14,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class RoleServiceImpl implements RoleService{
-    @Autowired
-    private RoleRepository roleRepository;
+
+    private final RoleRepository roleRepository;
 
     @Override
     public RoleResponse createRole(RoleRequest request){
