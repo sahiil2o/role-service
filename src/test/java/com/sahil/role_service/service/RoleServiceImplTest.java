@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -107,6 +108,19 @@ public class RoleServiceImplTest
 
         assertThrows(ResourceNotFoundException.class,
                 () -> roleService.getRoleByName("UNKNOWN"));
+    }
+    @Test
+    void getAllRoles_success()
+    {
+        List<Role> roles = List.of(role);
+        when(roleRepository.findAll()).thenReturn(roles);
+
+        List<RoleResponse> response = roleService.getAllRoles();
+
+        assertNotNull(response);
+        assertEquals(1, response.size());
+        assertEquals("ADMIN_ROLE", response.get(0).getName());
+        verify(roleRepository, times(1)).findAll();
     }
 
     @Test
